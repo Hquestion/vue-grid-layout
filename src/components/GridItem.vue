@@ -3,10 +3,17 @@
          class="vue-grid-item"
          :class="{ 'vue-resizable' : resizableAndNotStatic, 'static': static, 'resizing' : isResizing, 'vue-draggable-dragging' : isDragging, 'cssTransforms' : useCssTransforms, 'render-rtl' : renderRtl, 'disable-userselect': isDragging, 'no-touch': isAndroid }"
          :style="style"
+         @click="onActiveItem"
     >
         <slot></slot>
         <span v-if="resizableAndNotStatic" ref="handle" :class="resizableHandleClass"></span>
         <!--<span v-if="draggable" ref="dragHandle" class="vue-draggable-handle"></span>-->
+        <div class="active-box" v-if="resizableAndNotStatic && active">
+            <div class="resize-handler resize-handler-left-top resize-left resize-top"></div>
+            <div class="resize-handler resize-handler-right-top resize-right resize-top"></div>
+            <div class="resize-handler resize-handler-left-bottom resize-left resize-bottom"></div>
+            <div class="resize-handler resize-handler-right-bottom resize-right resize-bottom"></div>
+        </div>
     </div>
 </template>
 <style>
@@ -83,6 +90,38 @@
 
     .vue-grid-item.disable-userselect {
         user-select: none;
+    }
+    .vue-grid-item .active-box {
+        position: absolute;
+        left: -5px;
+        right: -5px;
+        top: -5px;
+        bottom: -5px;
+        border: 1px solid #2299ee;
+    }
+    .vue-grid-item .active-box .resize-handler {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: #2299ee;
+        cursor: se-resize;
+        z-index: 5;
+    }
+    .vue-grid-item .active-box .resize-handler.resize-handler-left-top {
+        left: -4px;
+        top: -4px;
+    }
+    .vue-grid-item .active-box .resize-handler.resize-handler-right-top {
+        right: -4px;
+        top: -4px;
+    }
+    .vue-grid-item .active-box .resize-handler.resize-handler-left-bottom {
+        left: -4px;
+        bottom: -4px;
+    }
+    .vue-grid-item .active-box .resize-handler.resize-handler-right-bottom {
+        right: -4px;
+        bottom: -4px;
     }
 </style>
 <script>
@@ -176,6 +215,10 @@
             i: {
                 required: true
             },
+            active: {
+                type: Boolean,
+                default: false
+            },
             dragIgnoreFrom: {
                 type: String,
                 required: false,
@@ -225,7 +268,9 @@
                 innerX: this.x,
                 innerY: this.y,
                 innerW: this.w,
-                innerH: this.h
+                innerH: this.h,
+
+                activated: false
             }
         },
         created () {
@@ -271,7 +316,7 @@
             this.eventBus.$on('setResizable', self.setResizableHandler);
             this.eventBus.$on('setRowHeight', self.setRowHeightHandler);
             this.eventBus.$on('directionchange', self.directionchangeHandler);
-            this.eventBus.$on('setColNum', self.setColNum)
+            this.eventBus.$on('setColNum', self.setColNum);
 
             this.rtl = getDocumentDir() === 'rtl';
         },
@@ -354,6 +399,9 @@
                 // console.log("### renderRtl");
                 this.tryMakeResizable();
                 this.createStyle();
+            },
+            active(val) {
+                this.activated = val;
             }
         },
         computed: {
@@ -443,6 +491,7 @@
                     }
                     case "resizemove": {
 //                        console.log("### resize => " + event.type + ", lastW=" + this.lastW + ", lastH=" + this.lastH);
+                        console.log(event);
                         const coreEvent = createCoreData(this.lastW, this.lastH, x, y);
                         if (this.renderRtl) {
                             newSize.width = this.resizing.width - coreEvent.deltaX;
@@ -714,10 +763,12 @@
                         preserveAspectRatio: true,
                         // allowFrom: "." + this.resizableHandleClass,
                         edges: {
-                            left: false,
-                            right: "." + this.resizableHandleClass,
-                            bottom: "." + this.resizableHandleClass,
-                            top: false
+                            left: '.resize-left',
+                            // right: "." + this.resizableHandleClass,
+                            // bottom: "." + this.resizableHandleClass,
+                            right: '.resize-right',
+                            bottom: '.resize-bottom',
+                            top: '.resize-top'
                         },
                         ignoreFrom: this.resizeIgnoreFrom,
                         restrictSize: {
@@ -783,6 +834,11 @@
                     this.$emit("resized", this.i, pos.h, pos.w, newSize.height, newSize.width);
                     this.eventBus.$emit("resizeEvent", "resizeend", this.i, this.innerX, this.innerY, pos.h, pos.w);
                 }
+            },
+            onActiveItem() {
+                if (this.isDragging || this.isResizing) return;
+                this.$emit('active', this.i);
+                this.eventBus.$emit("activeGridItem", this.i);
             }
         },
     }

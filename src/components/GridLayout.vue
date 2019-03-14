@@ -132,6 +132,7 @@
             self.eventBus = self._provided.eventBus;
             self.eventBus.$on('resizeEvent', self.resizeEventHandler);
             self.eventBus.$on('dragEvent', self.dragEventHandler);
+            self.eventBus.$on('activeGridItem', self.activeGridItem);
             self.$emit('layout-created', self.layout);
         },
         beforeDestroy: function(){
@@ -379,6 +380,10 @@
 
                 //Combine the two arrays of unique entries#
                 return uniqueResultOne.concat(uniqueResultTwo);
+            },
+            activeGridItem(id) {
+                this.layout.forEach(item => item.active = false);
+                this.layout.find(item => item.i === id).active = true;
             }
         },
     }
