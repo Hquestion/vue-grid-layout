@@ -476,7 +476,7 @@
                 if (position == null) return; // not possible but satisfies flow
                 const {x, y} = position;
 
-                const newSize = {width: 0, height: 0};
+                const newSize = {width: 0, height: 0, left: 0, top: 0};
                 let pos;
                 switch (event.type) {
                     case "resizestart": {
@@ -485,23 +485,50 @@
                         pos = this.calcPosition(this.innerX, this.innerY, this.innerW, this.innerH);
                         newSize.width = pos.width;
                         newSize.height = pos.height;
-                        this.resizing = newSize;
+                        newSize.left = pos.left;
+                        newSize.top = pos.top;
+                        this.resizing = {...newSize};
+                        console.log('newSize init:', newSize);
                         this.isResizing = true;
                         break;
                     }
                     case "resizemove": {
 //                        console.log("### resize => " + event.type + ", lastW=" + this.lastW + ", lastH=" + this.lastH);
+                        // const coreEvent = createCoreData(this.lastW, this.lastH, x, y);
+                        // if (this.renderRtl) {
+                        //     newSize.width = this.resizing.width - coreEvent.deltaX;
+                        // } else {
+                        //     newSize.width = this.resizing.width + coreEvent.deltaX;
+                        // }
+                        // newSize.height = this.resizing.height + coreEvent.deltaY;
+
+                        // const deltaRect = event.deltaRect;
+                        // newSize.left = this.resizing.left + deltaRect.left;
+                        // newSize.top = this.resizing.top + deltaRect.top;
+                        // if (deltaRect.left !== 0) {
+                        //     newSize.width = this.resizing.width - event.dx;
+                        // } else {
+                        //     newSize.width = this.resizing.width + event.dx;
+                        // }
+                        // if (deltaRect.top !== 0) {
+                        //     newSize.height = this.resizing.height - event.dy;
+                        // } else {
+                        //     newSize.height = this.resizing.height + event.dy;
+                        // }
+                        const outer = document.querySelector('.vue-grid-layout');
+                        const outerBounding = outer.getBoundingClientRect();
+
+                        const rect = event.rect;
+                        console.log(rect.height);
                         console.log(event);
-                        const coreEvent = createCoreData(this.lastW, this.lastH, x, y);
-                        if (this.renderRtl) {
-                            newSize.width = this.resizing.width - coreEvent.deltaX;
-                        } else {
-                            newSize.width = this.resizing.width + coreEvent.deltaX;
-                        }
-                        newSize.height = this.resizing.height + coreEvent.deltaY;
+                        newSize.left = rect.left - outerBounding.left;
+                        newSize.top = rect.top - outerBounding.top - document.documentElement.scrollTop;
+                        newSize.width = rect.width;
+                        newSize.height = rect.height;
+
 
                         ///console.log("### resize => " + event.type + ", deltaX=" + coreEvent.deltaX + ", deltaY=" + coreEvent.deltaY);
-                        this.resizing = newSize;
+                        this.resizing = {...newSize};
                         break;
                     }
                     case "resizeend": {
@@ -509,6 +536,8 @@
                         pos = this.calcPosition(this.innerX, this.innerY, this.innerW, this.innerH);
                         newSize.width = pos.width;
                         newSize.height = pos.height;
+                        newSize.left = pos.left;
+                        newSize.top = pos.top;
 //                        console.log("### resize end => " + JSON.stringify(newSize));
                         this.resizing = null;
                         this.isResizing = false;
@@ -518,6 +547,7 @@
 
                 // Get new WH
                 pos = this.calcWH(newSize.height, newSize.width);
+                let xy = this.calcXY(newSize.top, newSize.left);
                 if (pos.w < this.minW) {
                     pos.w = this.minW;
                 }
@@ -547,7 +577,8 @@
                 if (event.type === "resizeend" && (this.previousW !== this.innerW || this.previousH !== this.innerH)) {
                     this.$emit("resized", this.i, pos.h, pos.w, newSize.height, newSize.width);
                 }
-                this.eventBus.$emit("resizeEvent", event.type, this.i, this.innerX, this.innerY, pos.h, pos.w);
+                console.log(xy);
+                this.eventBus.$emit("resizeEvent", event.type, this.i, xy.x, xy.y, pos.h, pos.w);
             },
             handleDrag(event) {
                 if (this.static) return;
@@ -669,6 +700,7 @@
              */
             // TODO check if this function needs change in order to support rtl.
             calcXY(top, left) {
+                console.log(top, left);
                 const colWidth = this.calcColWidth();
 
                 // left = colWidth * x + margin * (x + 1)
@@ -780,6 +812,10 @@
                                 height: maximum.height,
                                 width: maximum.width
                             }
+                        },
+                        restrictEdges: {
+                            outer: 'parent',
+                            endOnly: true,
                         }
                     };
 

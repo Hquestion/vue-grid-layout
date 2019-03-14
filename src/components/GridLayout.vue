@@ -314,6 +314,8 @@
                 }
                 l.h = h;
                 l.w = w;
+                l.x = x;
+                l.y = y;
 
                 if (this.responsive) this.responsiveGridLayout();
 
