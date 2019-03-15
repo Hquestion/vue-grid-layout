@@ -2,21 +2,21 @@
     <div ref="item"
          class="vue-grid-item"
          :class="{ 'vue-resizable' : resizableAndNotStatic, 'static': static, 'resizing' : isResizing, 'vue-draggable-dragging' : isDragging,
-         'cssTransforms' : useCssTransforms, 'render-rtl' : renderRtl, 'disable-userselect': isDragging, 'no-touch': isAndroid, 'active': active}"
+         'cssTransforms' : useCssTransforms, 'render-rtl' : renderRtl, 'disable-userselect': isDragging, 'no-touch': isAndroid, 'active': active, 'hoverable': resizableAndNotStatic}"
          :style="style"
          @click="onActiveItem"
     >
         <slot></slot>
         <!--<span v-if="resizableAndNotStatic" ref="handle" :class="resizableHandleClass"></span>-->
         <!--<span v-if="draggable" ref="dragHandle" class="vue-draggable-handle"></span>-->
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left-top resize-left resize-top"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right-top resize-right resize-top"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left-bottom resize-left resize-bottom"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right-bottom resize-right resize-bottom"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left resize-left"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right resize-right"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-bottom resize-bottom"></div>
-        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-top resize-top"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-left-top resize-left resize-top"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-right-top resize-right resize-top"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-left-bottom resize-left resize-bottom"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-right-bottom resize-right resize-bottom"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-left resize-left"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-right resize-right"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-bottom resize-bottom"></div>
+        <div v-show="resizableAndNotStatic && active" class="resize-handler resize-handler-top resize-top"></div>
     </div>
 </template>
 <style>
@@ -47,13 +47,20 @@
         z-index: 3;
     }
 
+    .vue-grid-item.hoverable:hover {
+        border: 1px solid #2E92FA;
+    }
+    .vue-grid-item.hoverable:hover .resize-handler {
+        display: block !important;
+    }
+
     .vue-grid-item.vue-draggable-dragging {
         transition:none;
         z-index: 3;
     }
 
     .vue-grid-item.vue-grid-placeholder {
-        background: red;
+        background: #2E92FA;
         opacity: 0.2;
         transition-duration: 100ms;
         z-index: 2;

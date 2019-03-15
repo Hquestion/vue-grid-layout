@@ -6,6 +6,8 @@ module.exports = {
         },
     },
     css: {
-        extract: false
-    }
+        extract: false,
+        sourceMap: false
+    },
+    productionSourceMap: false
 }
