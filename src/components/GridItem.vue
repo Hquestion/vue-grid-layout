@@ -1,19 +1,22 @@
 <template>
     <div ref="item"
          class="vue-grid-item"
-         :class="{ 'vue-resizable' : resizableAndNotStatic, 'static': static, 'resizing' : isResizing, 'vue-draggable-dragging' : isDragging, 'cssTransforms' : useCssTransforms, 'render-rtl' : renderRtl, 'disable-userselect': isDragging, 'no-touch': isAndroid }"
+         :class="{ 'vue-resizable' : resizableAndNotStatic, 'static': static, 'resizing' : isResizing, 'vue-draggable-dragging' : isDragging,
+         'cssTransforms' : useCssTransforms, 'render-rtl' : renderRtl, 'disable-userselect': isDragging, 'no-touch': isAndroid, 'active': active}"
          :style="style"
          @click="onActiveItem"
     >
         <slot></slot>
-        <span v-if="resizableAndNotStatic" ref="handle" :class="resizableHandleClass"></span>
+        <!--<span v-if="resizableAndNotStatic" ref="handle" :class="resizableHandleClass"></span>-->
         <!--<span v-if="draggable" ref="dragHandle" class="vue-draggable-handle"></span>-->
-        <div class="active-box" v-if="resizableAndNotStatic && active">
-            <div class="resize-handler resize-handler-left-top resize-left resize-top"></div>
-            <div class="resize-handler resize-handler-right-top resize-right resize-top"></div>
-            <div class="resize-handler resize-handler-left-bottom resize-left resize-bottom"></div>
-            <div class="resize-handler resize-handler-right-bottom resize-right resize-bottom"></div>
-        </div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left-top resize-left resize-top"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right-top resize-right resize-top"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left-bottom resize-left resize-bottom"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right-bottom resize-right resize-bottom"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-left resize-left"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-right resize-right"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-bottom resize-bottom"></div>
+        <div v-if="resizableAndNotStatic && active" class="resize-handler resize-handler-top resize-top"></div>
     </div>
 </template>
 <style>
@@ -91,37 +94,54 @@
     .vue-grid-item.disable-userselect {
         user-select: none;
     }
-    .vue-grid-item .active-box {
-        position: absolute;
-        left: -5px;
-        right: -5px;
-        top: -5px;
-        bottom: -5px;
-        border: 1px solid #2299ee;
+    .vue-grid-item.active {
+        border: 1px solid #2E92FA;
     }
-    .vue-grid-item .active-box .resize-handler {
+    .vue-grid-item .resize-handler {
         position: absolute;
-        width: 8px;
-        height: 8px;
-        background: #2299ee;
+        width: 10px;
+        height: 10px;
+        background: #2E92FA;
         cursor: se-resize;
         z-index: 5;
     }
-    .vue-grid-item .active-box .resize-handler.resize-handler-left-top {
-        left: -4px;
-        top: -4px;
+    .vue-grid-item .resize-handler.resize-handler-left-top {
+        left: -5px;
+        top: -5px;
     }
-    .vue-grid-item .active-box .resize-handler.resize-handler-right-top {
-        right: -4px;
-        top: -4px;
+    .vue-grid-item .resize-handler.resize-handler-right-top {
+        right: -5px;
+        top: -5px;
+        cursor: ne-resize;
     }
-    .vue-grid-item .active-box .resize-handler.resize-handler-left-bottom {
-        left: -4px;
-        bottom: -4px;
+    .vue-grid-item .resize-handler.resize-handler-left-bottom {
+        left: -5px;
+        bottom: -5px;
+        cursor: ne-resize;
     }
-    .vue-grid-item .active-box .resize-handler.resize-handler-right-bottom {
-        right: -4px;
-        bottom: -4px;
+    .vue-grid-item .resize-handler.resize-handler-right-bottom {
+        right: -5px;
+        bottom: -5px;
+    }
+    .vue-grid-item .resize-handler.resize-handler-left{
+        left: -5px;
+        top: calc(50% - 5px);
+        cursor: ew-resize;
+    }
+    .vue-grid-item .resize-handler.resize-handler-top{
+        top: -5px;
+        left: calc(50% - 5px);
+        cursor: ns-resize;
+    }
+    .vue-grid-item .resize-handler.resize-handler-right{
+        right: -5px;
+        top: calc(50% - 5px);
+        cursor: ew-resize;
+    }
+    .vue-grid-item .resize-handler.resize-handler-bottom{
+        left: calc(50% - 5px);
+        bottom: -5px;
+        cursor: ns-resize;
     }
 </style>
 <script>
@@ -446,6 +466,8 @@
                 if (this.isResizing) {
                     pos.width = this.resizing.width;
                     pos.height = this.resizing.height;
+                    pos.top = this.resizing.top;
+                    pos.left = this.resizing.left;
                 }
 
                 let style;
@@ -471,10 +493,10 @@
             },
             handleResize: function (event) {
                 if (this.static) return;
-                const position = getControlPosition(event);
+                // const position = getControlPosition(event);
                 // Get the current drag point from the event. This is used as the offset.
-                if (position == null) return; // not possible but satisfies flow
-                const {x, y} = position;
+                // if (position == null) return; // not possible but satisfies flow
+                // const {x, y} = position;
 
                 const newSize = {width: 0, height: 0, left: 0, top: 0};
                 let pos;
@@ -488,7 +510,6 @@
                         newSize.left = pos.left;
                         newSize.top = pos.top;
                         this.resizing = {...newSize};
-                        console.log('newSize init:', newSize);
                         this.isResizing = true;
                         break;
                     }
@@ -502,30 +523,12 @@
                         // }
                         // newSize.height = this.resizing.height + coreEvent.deltaY;
 
-                        // const deltaRect = event.deltaRect;
-                        // newSize.left = this.resizing.left + deltaRect.left;
-                        // newSize.top = this.resizing.top + deltaRect.top;
-                        // if (deltaRect.left !== 0) {
-                        //     newSize.width = this.resizing.width - event.dx;
-                        // } else {
-                        //     newSize.width = this.resizing.width + event.dx;
-                        // }
-                        // if (deltaRect.top !== 0) {
-                        //     newSize.height = this.resizing.height - event.dy;
-                        // } else {
-                        //     newSize.height = this.resizing.height + event.dy;
-                        // }
-                        const outer = document.querySelector('.vue-grid-layout');
-                        const outerBounding = outer.getBoundingClientRect();
-
                         const rect = event.rect;
-                        console.log(rect.height);
-                        console.log(event);
-                        newSize.left = rect.left - outerBounding.left;
-                        newSize.top = rect.top - outerBounding.top - document.documentElement.scrollTop;
+                        const deltaRect = event.deltaRect;
+                        newSize.left = this.resizing.left + deltaRect.left;
+                        newSize.top = this.resizing.top + deltaRect.top;
                         newSize.width = rect.width;
                         newSize.height = rect.height;
-
 
                         ///console.log("### resize => " + event.type + ", deltaX=" + coreEvent.deltaX + ", deltaY=" + coreEvent.deltaY);
                         this.resizing = {...newSize};
@@ -568,8 +571,8 @@
                     pos.w = 1;
                 }
 
-                this.lastW = x;
-                this.lastH = y;
+                // this.lastW = x;
+                // this.lastH = y;
 
                 if (this.innerW !== pos.w || this.innerH !== pos.h) {
                     this.$emit("resize", this.i, pos.h, pos.w, newSize.height, newSize.width);
@@ -577,7 +580,6 @@
                 if (event.type === "resizeend" && (this.previousW !== this.innerW || this.previousH !== this.innerH)) {
                     this.$emit("resized", this.i, pos.h, pos.w, newSize.height, newSize.width);
                 }
-                console.log(xy);
                 this.eventBus.$emit("resizeEvent", event.type, this.i, xy.x, xy.y, pos.h, pos.w);
             },
             handleDrag(event) {
@@ -792,7 +794,7 @@
                     // console.log("### MIN " + JSON.stringify(minimum));
 
                     const opts = {
-                        preserveAspectRatio: true,
+                        preserveAspectRatio: false,
                         // allowFrom: "." + this.resizableHandleClass,
                         edges: {
                             left: '.resize-left',
