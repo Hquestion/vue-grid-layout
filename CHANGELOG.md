@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.3.4.1(Mar 15, 2019)
+
+> 个人fork后调整
+
+* Support grid item active status, and emit 'active' event when clicked
+* Support resize from all direction, like below:
+
+![多角度缩放](./docs/resize.png)
+
+
 ## 2.3.4 (Mar 5, 2019)
 
 * Support for static items (thanks [panjiangyi](https://github.com/panjiangyi)).
