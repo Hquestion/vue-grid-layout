@@ -385,7 +385,8 @@
             },
             activeGridItem(id) {
                 this.layout.forEach(item => item.active = false);
-                this.layout.find(item => item.i === id).active = true;
+                const gridItem = this.layout.find(item => item.i === id);
+                gridItem && (gridItem.active = true);
             }
         },
     }

@@ -101,7 +101,7 @@
     .vue-grid-item.disable-userselect {
         user-select: none;
     }
-    .vue-grid-item.active {
+    .vue-grid-item.active.hoverable {
         border: 1px solid #2E92FA;
     }
     .vue-grid-item .resize-handler {
@@ -881,7 +881,7 @@
                 }
             },
             onActiveItem() {
-                if (this.isDragging || this.isResizing) return;
+                if (!this.resizable || this.isDragging || this.isResizing) return;
                 this.$emit('active', this.i);
                 this.eventBus.$emit("activeGridItem", this.i);
             }
