@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.3.4.2(Mar 15, 2019)
+
+> 个人fork后调整
+
+* Support set margin
+
 ## 2.3.4.1(Mar 15, 2019)
 
 > 个人fork后调整
