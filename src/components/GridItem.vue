@@ -335,7 +335,11 @@
 
             self.setColNum = (colNum) => {
                self.cols = parseInt(colNum);
-            }
+            };
+
+            self.setMargin = margin => {
+                self.margin = margin;
+            };
 
             this.eventBus.$on('updateWidth', self.updateWidthHandler);
             this.eventBus.$on('compact', self.compactHandler);
@@ -344,6 +348,7 @@
             this.eventBus.$on('setRowHeight', self.setRowHeightHandler);
             this.eventBus.$on('directionchange', self.directionchangeHandler);
             this.eventBus.$on('setColNum', self.setColNum);
+            this.eventBus.$on('setMargin', self.setMargin);
 
             this.rtl = getDocumentDir() === 'rtl';
         },
@@ -429,6 +434,10 @@
             },
             active(val) {
                 this.activated = val;
+            },
+            margin(val) {
+                this.tryMakeResizable();
+                this.createStyle();
             }
         },
         computed: {

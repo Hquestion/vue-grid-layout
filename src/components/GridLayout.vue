@@ -207,6 +207,9 @@
                     this.eventBus.$emit("setColNum", this.colNum);
                 }
                 this.onWindowResize();
+            },
+            margin(val) {
+                this.eventBus.$emit('setMargin', val);
             }
         },
         methods: {
